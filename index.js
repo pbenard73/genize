@@ -115,11 +115,10 @@ function run() {
 
             const folderPath = path.join(root, "src", command.command + "s")
             if (fs.existsSync(folderPath) === false) {
-                fs.mkdirSycn(folderPath)
+                fs.mkdirSync(folderPath)
             }
 
             const filePath = path.join(folderPath, command.args.name + ".js")
-		console.log(command.args)
 
             fs.writeFile(filePath, template, error => {
                 if (error) {
