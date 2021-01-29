@@ -1,6 +1,8 @@
 const createTemplate = data => {
 	const name = data.name[0].toUpperCase() + data.name.substr(1)
-	const template = `class ${name} {
+	const template = `import { staty } from 'reactizy'
+
+class ${name} {
 	state = {
 	}
 

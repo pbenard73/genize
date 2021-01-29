@@ -1,10 +1,16 @@
 const createTemplate = data => {
-	const name = data.name
-	const template = `import { hocBuilder } from 'reactizy'
+    const name = data.name
+    const reduxer =
+        data.reduxers === undefined
+            ? ""
+            : `import ${data.reduxers} from './../reduxers/${data.reduxers}'
+`
 
+    const template = `import { hocBuilder } from 'reactizy'
+${reduxer}
 const ${name} = hocBuilder({
 	apis: [],
-	reduxers:[],
+	reduxers:[${data.reduxers || ""}],
 	hocs: {},
 	thunks: {},
 	fusion: [],
@@ -17,7 +23,7 @@ const ${name} = hocBuilder({
 
 export default ${name}`
 
-	return template
+    return template
 }
 
 module.exports = createTemplate
