@@ -124,7 +124,7 @@ function createApp(data) {
     }
 
     const name = data.args.name
-    runSpawn("npx", ["--registry", "https://registry.npmjs.org", "create-react-app", name])
+    runSpawn("npx", ["--registry", "https://registry.npmjs.org", "create-react-app@lastest", "--use-npm", name])
         .then(() => {
             runSpawn("npm", [
                 "--registry",
