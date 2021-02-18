@@ -9,11 +9,13 @@ const componentTemplate = require("./templates/component")
 const hocTemplate = require("./templates/hoc")
 const reduxerTemplate = require("./templates/reduxer")
 const appTemplate = require("./templates/app")
+const apiTemplate = require("./templates/api")
 const spawn = require("child_process").spawn
 
 const PIVOT = "/bin/genize"
 const COMMANDS_LIST = {
     create: [],
+    api: [],
     container: [{ name: "hocName" }, { name: "isClass", type: "confirm", message: "Is React Class ?" }],
     page: [{ name: "hocName" }, { name: "isClass", type: "confirm", message: "Is React Class ?" }],
     window: [{ name: "hocName" }, { name: "isClass", type: "confirm", message: "Is React Class ?" }],
@@ -153,6 +155,7 @@ function createAppFiles(folder) {
     const root = path.resolve("./" + folder + "/src/")
     return new Promise((resolve, reject) => {
         try {
+            fs.mkdirSync(root + "/apis")
             fs.mkdirSync(root + "/hocs")
             fs.mkdirSync(root + "/reduxers")
             fs.mkdirSync(root + "/components")
@@ -193,6 +196,8 @@ function run() {
             let template = null
             if (["page", "window", "component", "container"].indexOf(command.command) !== -1) {
                 template = componentTemplate(command.args)
+            } else if (command.command === "api") {
+                template = apiTemplate(command.args)
             } else if (command.command === "reduxer") {
                 template = reduxerTemplate(command.args)
             } else if (command.command === "hoc") {

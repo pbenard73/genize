@@ -14,5 +14,5 @@
   },
   "bin": {
     "genize": "./index.js"
-  }  
+  }
 }
