@@ -46,7 +46,7 @@ $ genize component ComponentName
 $ genize page PageName
 ```
 
-### Createa Window
+### Create Window
 
 ```
 $ genize window WindowName

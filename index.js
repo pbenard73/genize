@@ -5,16 +5,18 @@ const fs = require("fs")
 const _ = require("underscore")
 const inquirer = require("inquirer")
 
+const createApp = require('./createApp')
+
 const componentTemplate = require("./templates/component")
 const hocTemplate = require("./templates/hoc")
 const reduxerTemplate = require("./templates/reduxer")
-const appTemplate = require("./templates/app")
 const apiTemplate = require("./templates/api")
 const spawn = require("child_process").spawn
 
-const PIVOT = "/bin/genize"
+//const PIVOT = "/bin/genize"
+const PIVOT = "index.js"
 const COMMANDS_LIST = {
-    create: [],
+    create: [{name: "withRouter", type:"confirm", message: "Use React Router ?"}, {name:'server', type:"confirm", message:"Create Express Server ?"}],
     api: [],
     container: [{ name: "hocName" }, { name: "isClass", type: "confirm", message: "Is React Class ?" }],
     page: [{ name: "hocName" }, { name: "isClass", type: "confirm", message: "Is React Class ?" }],
@@ -114,76 +116,12 @@ function runSpawn(...args) {
     })
 }
 
-function createApp(data) {
-    const success = () => {
-        console.log("Cool !")
-        process.exit(0)
-    }
-
-    const error = () => {
-        console.error("Error during App creation")
-        process.exit(1)
-    }
-
-    const name = data.args.name
-    runSpawn("npx", ["--registry", "https://registry.npmjs.org", "create-react-app@latest", "--use-npm", name])
-        .then(() => {
-            runSpawn("npm", [
-                "--registry",
-                "https://registry.npmjs.org",
-                "--prefix",
-                "./" + name,
-                "install",
-                "reactizy",
-                "react-dom",
-                "--save",
-            ])
-                .then(() => {
-                    createAppFiles(name)
-                        .then(success)
-                        .catch(e => console.log(e))
-                        .catch(error)
-                })
-                .catch(e => console.log(e))
-                .catch(error)
-        })
-        .catch(e => console.log(e))
-        .catch(error)
-}
-
-function createAppFiles(folder) {
-    const root = path.resolve("./" + folder + "/src/")
-    return new Promise((resolve, reject) => {
-        try {
-            fs.mkdirSync(root + "/apis")
-            fs.mkdirSync(root + "/hocs")
-            fs.mkdirSync(root + "/reduxers")
-            fs.mkdirSync(root + "/components")
-            fs.mkdirSync(root + "/containers")
-            fs.mkdirSync(root + "/pages")
-            fs.mkdirSync(root + "/windows")
-
-            const hoc = hocTemplate({ name: "hoc", reduxers: "main" })
-            const reduxer = reduxerTemplate({ name: "main" })
-            const component = componentTemplate({ name: "MyComponent", hocName: "hoc", isClass: false })
-
-            fs.writeFileSync(root + "/components/MyComponent.js", component)
-            fs.writeFileSync(root + "/hocs/hoc.js", hoc)
-            fs.writeFileSync(root + "/reduxers/main.js", reduxer)
-            fs.writeFileSync(root + "/App.js", appTemplate)
-            resolve(true)
-        } catch (e) {
-            console.log(e)
-            reject(e)
-        }
-    })
-}
 
 function run() {
     getCommand()
         .then(command => {
             if (command.command === "create") {
-                return createApp(command)
+                return createApp(runSpawn, command)
             }
 
             const root = getRoot()
