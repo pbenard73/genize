@@ -3,8 +3,8 @@ module.exports = (es6 = false) => {
 const path = require('path')
 
 const registeredEnvironments = {
-    dev: require('./env.dev'),
-    prod: require('./env.prod')
+    dev: require('./../env.dev'),
+    prod: require('./../env.prod')
 }
 `
 

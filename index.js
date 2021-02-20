@@ -13,10 +13,12 @@ const reduxerTemplate = require("./templates/reduxer")
 const apiTemplate = require("./templates/api")
 const spawn = require("child_process").spawn
 
-//const PIVOT = "/bin/genize"
-const PIVOT = "index.js"
+const PIVOT = "/bin/genize"
 const COMMANDS_LIST = {
-    create: [{name: "withRouter", type:"confirm", message: "Use React Router ?"}, {name:'server', type:"confirm", message:"Create Express Server ?"}],
+    create: [
+	    {name: "withRouter", type:"confirm", message: "Use React Router ?"},
+	    {name:'server', type:"confirm", message:"Create Express Server ?"},
+    ],
     api: [],
     container: [{ name: "hocName" }, { name: "isClass", type: "confirm", message: "Is React Class ?" }],
     page: [{ name: "hocName" }, { name: "isClass", type: "confirm", message: "Is React Class ?" }],

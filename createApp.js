@@ -6,14 +6,20 @@ const hocTemplate = require("./templates/hoc")
 const hocApi = require("./templates/hocApi")
 const reduxerTemplate = require("./templates/reduxer")
 const appTemplate = require("./templates/app")
+const appRouter = require("./templates/app_router")
 const apiComponent = require("./templates/compo_api")
 const apiMain = require("./templates/apiMain")
 const apiTemplate = require("./templates/api")
+const pageHome = require("./templates/page_home")
+const pageOther = require("./templates/page_other")
 const envTemplate = require("./templates/setenv")
 const envsTemplate = require("./templates/envs")
 const routeTemplate = require("./templates/route")
 const serverTemplate = require("./templates/server")
 const wwwTemplate = require("./templates/www")
+
+function mkdir(folderPath) {fs.mkdirSync(folderPath)}
+function write(filePath, content) {fs.writeFileSync(filePath, content)}
 
 function getExtraQuestions(options) {
     return new Promise((resolve, reject) => {
@@ -33,19 +39,19 @@ function createAppFiles(folder, options = {}) {
     const root = path.resolve("./" + folder + "/src/")
     return new Promise((resolve, reject) => {
         try {
-            fs.mkdirSync(root + "/apis")
-            fs.mkdirSync(root + "/hocs")
-            fs.mkdirSync(root + "/reduxers")
-            fs.mkdirSync(root + "/components")
-            fs.mkdirSync(root + "/containers")
-            fs.mkdirSync(root + "/pages")
-            fs.mkdirSync(root + "/windows")
+            mkdir(root + "/apis")
+            mkdir(root + "/hocs")
+            mkdir(root + "/reduxers")
+            mkdir(root + "/components")
+            mkdir(root + "/containers")
+            mkdir(root + "/pages")
+            mkdir(root + "/windows")
 
             if (options.server === true) {
-                fs.mkdirSync(base + "/public_assets")
-                fs.mkdirSync(base + "/routes")
-                fs.mkdirSync(base + "/scripts")
-                fs.mkdirSync(base + "/bin")
+                mkdir(base + "/public_assets")
+                mkdir(base + "/routes")
+                mkdir(base + "/scripts")
+                mkdir(base + "/bin")
             }
 
             const hoc = hocTemplate({ name: "hoc", reduxers: "main" })
@@ -53,25 +59,36 @@ function createAppFiles(folder, options = {}) {
             const component = componentTemplate({ name: "MyComponent", hocName: "hoc", isClass: false })
 
             fs.writeFileSync(root + "/reduxers/main.js", reduxer)
-            fs.writeFileSync(root + "/App.js", appTemplate)
+
+            const writeApp = givenComponent => {
+                write(root + "/components/MyComponent.js", givenComponent)
+                if (options.withRouter !== true) {
+                    write(root + "/App.js", appTemplate)
+                } else {
+                    write(root + "/App.js", appRouter)
+		    write(root + "/pages/Home.js", pageHome)
+		    write(root + "/pages/Other.js", pageOther)
+                }
+            }
 
             if (options.server !== true) {
-                fs.writeFileSync(root + "/components/MyComponent.js", component)
-                fs.writeFileSync(root + "/hocs/hoc.js", hoc)
+                writeApp(component)
+
+                write(root + "/hocs/hoc.js", hoc)
             } else {
                 const es6 = options.js === "es6"
+                writeApp(apiComponent())
 
-                fs.writeFileSync(root + "/components/MyComponent.js", apiComponent())
-                fs.writeFileSync(root + "/hocs/hoc.js", hocApi())
-                fs.writeFileSync(root + "/apis/api.js", apiMain())
+                write(root + "/hocs/hoc.js", hocApi())
+                write(root + "/apis/api.js", apiMain())
 
-                fs.writeFileSync(`${base}/bin/www${es6 === true ? ".js" : ""}`, wwwTemplate(es6 === true))
-                fs.writeFileSync(base + "/app.js", serverTemplate(es6 === true))
-                fs.writeFileSync(base + "/routes/main.js", routeTemplate(es6 === true))
-                fs.writeFileSync(base + "/scripts/setEnv.js", envTemplate(es6 === true))
-                fs.writeFileSync(`${base}/env.dev${es6 === true ? ".js" : ""}`, envsTemplate(es6 === true, true))
-                fs.writeFileSync(`${base}/env.prod${es6 === true ? ".js" : ""}`, envsTemplate(es6 === true))
-                fs.writeFileSync(root + "/env.js", "")
+                write(`${base}/bin/www${es6 === true ? ".js" : ""}`, wwwTemplate(es6 === true))
+                write(base + "/app.js", serverTemplate(es6 === true))
+                write(base + "/routes/main.js", routeTemplate(es6 === true))
+                write(base + "/scripts/setEnv.js", envTemplate(es6 === true))
+                write(`${base}/env.dev${es6 === true ? ".js" : ""}`, envsTemplate(es6 === true, true))
+                write(`${base}/env.prod${es6 === true ? ".js" : ""}`, envsTemplate(es6 === true))
+                write(root + "/env.js", "")
 
                 let packageFile = fs.readFileSync(base + "/package.json")
                 packageFile = JSON.parse(packageFile)
@@ -83,7 +100,7 @@ function createAppFiles(folder, options = {}) {
                     packageFile["type"] = "module"
                 }
 
-                fs.writeFileSync(base + "/package.json", JSON.stringify(packageFile, null, 2))
+                write(base + "/package.json", JSON.stringify(packageFile, null, 2))
             }
 
             resolve(true)
