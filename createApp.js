@@ -1,4 +1,5 @@
 const fs = require("fs")
+const colors = require('colors/safe');
 const path = require("path")
 const inquirer = require("inquirer")
 const componentTemplate = require("./templates/component")
@@ -113,7 +114,20 @@ function createAppFiles(folder, options = {}) {
 
 module.exports = function createApp(runSpawn, data) {
     const success = () => {
-        console.log("Cool !")
+        console.log(`
+   ${colors.cyan(`$ cd ${data.args.name}`)}
+
+   ${colors.cyan(`$ npm start`)}
+       ${colors.grey('Run express server')}
+
+   ${colors.cyan(`$ npm run start_front`)}
+       ${colors.grey('Run React development Server')}
+
+   ${colors.cyan(`$ npm run build`)}
+       ${colors.grey('Build React App')}
+
+👻 ${colors.rainbow('Yep ! Happy Quicker Hacking')}
+`)
         process.exit(0)
     }
 
@@ -145,9 +159,19 @@ module.exports = function createApp(runSpawn, data) {
     const name = data.args.name
     getExtraQuestions(data.args)
         .then(result => {
+            console.log(`
+
+▶ ${colors.yellow('Install create-react-app')}
+
+`)
             const options = { ...data.args, ...result }
             runSpawn("npx", ["--registry", "https://registry.npmjs.org", "create-react-app@latest", "--use-npm", name]).then(
                 () => {
+                    console.log(`
+
+▶ ${colors.yellow('Install Reactizy Dependencies')}
+
+`)
                     runSpawn("npm", [
                         "--registry",
                         "https://registry.npmjs.org",
@@ -158,6 +182,11 @@ module.exports = function createApp(runSpawn, data) {
                         "--save",
                     ])
                         .then(() => {
+                            console.log(`
+
+ ▶ ${colors.yellow('Install Reactizy Architecture')}
+
+                                `)
                             createAppFiles(name, options)
                                 .then(success)
                                 .catch(e => console.log(e))

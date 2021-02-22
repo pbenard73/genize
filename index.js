@@ -4,8 +4,11 @@ const path = require("path")
 const fs = require("fs")
 const _ = require("underscore")
 const inquirer = require("inquirer")
+const { program } = require("commander")
+const colors = require('colors/safe');
 
-const createApp = require('./createApp')
+const createApp = require("./createApp")
+const extraOptions = require('./extraOptions')
 
 const componentTemplate = require("./templates/component")
 const hocTemplate = require("./templates/hoc")
@@ -13,11 +16,10 @@ const reduxerTemplate = require("./templates/reduxer")
 const apiTemplate = require("./templates/api")
 const spawn = require("child_process").spawn
 
-const PIVOT = "/bin/genize"
 const COMMANDS_LIST = {
     create: [
-	    {name: "withRouter", type:"confirm", message: "Use React Router ?"},
-	    {name:'server', type:"confirm", message:"Create Express Server ?"},
+        { name: "withRouter", type: "confirm", message: "Use React Router ?" },
+        { name: "server", type: "confirm", message: "Create Express Server ?" },
     ],
     api: [],
     container: [{ name: "hocName" }, { name: "isClass", type: "confirm", message: "Is React Class ?" }],
@@ -28,23 +30,10 @@ const COMMANDS_LIST = {
     hoc: [],
 }
 
+let options = {}
+
 function getCommand() {
     return new Promise((resolve, reject) => {
-        const args = process.argv
-
-        let command = null
-        let foundPivot = false
-        let commandArgs = []
-        _.each(args, arg => {
-            if (foundPivot === false && arg.indexOf(PIVOT) !== -1) {
-                foundPivot = true
-            } else if (foundPivot === true && command === null && COMMANDS_LIST[arg] !== undefined) {
-                command = arg
-            } else if (command !== null) {
-                commandArgs.push(arg)
-            }
-        })
-
         const returnResult = data => {
             const wantedArgs = COMMANDS_LIST[data.command]
 
@@ -60,19 +49,37 @@ function getCommand() {
                 .catch(error => reject(error))
         }
 
-        if (command !== null) {
-            return returnResult({ command, name: commandArgs.length > 0 ? commandArgs[0] : `New${command}` })
-        }
+        program
+            .name('genize')
+            .version('0.0.8')
+            .usage(`
+Examples :
+     ${colors.yellow('genize create my-app')}  : Create a Reactizy Boileplate
+     ${colors.yellow('genize component ComponentName')}  : Create new Component
+     ${colors.yellow('genize page PageName')}  : Create new Page
+     ${colors.yellow('genize window WindowName')}  : Create new Window
+     ${colors.yellow('genize reduxer reduxerName')}  : Create new Reactizy reduxer
+     ${colors.yellow('genize hoc hocName')}  : Create new Reactizy hoc
+            `)
+            .arguments("[command] [name]")
+            .option("-i, --import", "Import in files after component creation")
+            .action((command, name, givenOptions) => {
+                options = givenOptions
+                if (COMMANDS_LIST[command] !== undefined) {
+                    return returnResult({ command, name: name !== undefined ? name : `New${command}` })
+                }
 
-        inquirer
-            .prompt([
-                { name: "command", type: "list", choices: Object.keys(COMMANDS_LIST), message: "Choose Command" },
-                { name: "name", message: "Given Name" },
-            ])
-            .then(value => {
-                return returnResult({ command: value.command, name: value.name })
+                inquirer
+                    .prompt([
+                        { name: "command", type: "list", choices: Object.keys(COMMANDS_LIST), message: "Choose Command" },
+                        { name: "name", message: "Given Name" },
+                    ])
+                    .then(value => {
+                        return returnResult({ command: value.command, name: value.name })
+                    })
+                    .catch(error => reject(error))
             })
-            .catch(error => reject(error))
+            .parse(process.argv)
     })
 }
 
@@ -118,7 +125,6 @@ function runSpawn(...args) {
     })
 }
 
-
 function run() {
     getCommand()
         .then(command => {
@@ -161,8 +167,12 @@ function run() {
                     console.error(error)
                     process.exit(1)
                 }
-                console.log("File generated successfully !")
-                process.exit(0)
+
+                console.log("✅ File generated successfully !")
+                
+                extraOptions(path.join(root, 'src'), filePath, command.args.name, options)
+                .catch(error => console.log(error))
+                .finally(() => process.exit(0))
             })
         })
         .catch(error => {
