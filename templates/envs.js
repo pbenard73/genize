@@ -1,9 +1,9 @@
-module.exports = (es6 = false, dev = false) => {
+module.exports = (es6 = false, dev = false, port) => {
     if (es6 === false) {
     if (dev === true) {
     return `module.exports = {
     env:'dev',
-    api: 'http://localhost:5000'
+    api: 'http://localhost:${port}'
 }`
     }
 
@@ -16,7 +16,7 @@ module.exports = (es6 = false, dev = false) => {
     if (dev === true) {
     return `export default {
     env:'dev',
-    api: 'http://localhost:5000'
+    api: 'http://localhost:${port}'
 }`
     }
 

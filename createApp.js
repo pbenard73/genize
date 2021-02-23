@@ -1,5 +1,5 @@
 const fs = require("fs")
-const colors = require('colors/safe');
+const colors = require("colors/safe")
 const path = require("path")
 const inquirer = require("inquirer")
 const componentTemplate = require("./templates/component")
@@ -19,14 +19,21 @@ const routeTemplate = require("./templates/route")
 const serverTemplate = require("./templates/server")
 const wwwTemplate = require("./templates/www")
 
-function mkdir(folderPath) {fs.mkdirSync(folderPath)}
-function write(filePath, content) {fs.writeFileSync(filePath, content)}
+function mkdir(folderPath) {
+    fs.mkdirSync(folderPath)
+}
+function write(filePath, content) {
+    fs.writeFileSync(filePath, content)
+}
 
 function getExtraQuestions(options) {
     return new Promise((resolve, reject) => {
         if (options.server === true) {
             return inquirer
-                .prompt([{ name: "js", type: "list", choices: ["common", "es6"], message: "Javascript Version" }])
+                .prompt([
+                    { name: "port", type: "text", default: 5000, message: "Server Port" },
+                    { name: "js", type: "list", choices: ["common", "es6"], message: "Javascript Version" },
+                ])
                 .then(value => resolve(value))
                 .catch(error => reject(error))
         }
@@ -67,8 +74,8 @@ function createAppFiles(folder, options = {}) {
                     write(root + "/App.js", appTemplate)
                 } else {
                     write(root + "/App.js", appRouter)
-		    write(root + "/pages/Home.js", pageHome)
-		    write(root + "/pages/Other.js", pageOther)
+                    write(root + "/pages/Home.js", pageHome)
+                    write(root + "/pages/Other.js", pageOther)
                 }
             }
 
@@ -78,17 +85,19 @@ function createAppFiles(folder, options = {}) {
                 write(root + "/hocs/hoc.js", hoc)
             } else {
                 const es6 = options.js === "es6"
+                const port = options.port
+
                 writeApp(apiComponent())
 
                 write(root + "/hocs/hoc.js", hocApi())
                 write(root + "/apis/api.js", apiMain())
 
-                write(`${base}/bin/www${es6 === true ? ".js" : ""}`, wwwTemplate(es6 === true))
+                write(`${base}/bin/www${es6 === true ? ".js" : ""}`, wwwTemplate(es6 === true, port))
                 write(base + "/app.js", serverTemplate(es6 === true))
                 write(base + "/routes/main.js", routeTemplate(es6 === true))
                 write(base + "/scripts/setEnv.js", envTemplate(es6 === true))
-                write(`${base}/env.dev${es6 === true ? ".js" : ""}`, envsTemplate(es6 === true, true))
-                write(`${base}/env.prod${es6 === true ? ".js" : ""}`, envsTemplate(es6 === true))
+                write(`${base}/env.dev${es6 === true ? ".js" : ""}`, envsTemplate(es6 === true, true, port))
+                write(`${base}/env.prod${es6 === true ? ".js" : ""}`, envsTemplate(es6 === true, false, port))
                 write(root + "/env.js", "")
 
                 let packageFile = fs.readFileSync(base + "/package.json")
@@ -118,15 +127,15 @@ module.exports = function createApp(runSpawn, data) {
    ${colors.cyan(`$ cd ${data.args.name}`)}
 
    ${colors.cyan(`$ npm start`)}
-       ${colors.grey('Run express server')}
+       ${colors.grey("Run express server")}
 
    ${colors.cyan(`$ npm run start_front`)}
-       ${colors.grey('Run React development Server')}
+       ${colors.grey("Run React development Server")}
 
    ${colors.cyan(`$ npm run build`)}
-       ${colors.grey('Build React App')}
+       ${colors.grey("Build React App")}
 
-👻 ${colors.rainbow('Yep ! Happy Quicker Hacking')}
+👻 ${colors.rainbow("Yep ! Happy Quicker Hacking")}
 `)
         process.exit(0)
     }
@@ -161,7 +170,7 @@ module.exports = function createApp(runSpawn, data) {
         .then(result => {
             console.log(`
 
-▶ ${colors.yellow('Install create-react-app')}
+▶ ${colors.yellow("Install create-react-app")}
 
 `)
             const options = { ...data.args, ...result }
@@ -169,7 +178,7 @@ module.exports = function createApp(runSpawn, data) {
                 () => {
                     console.log(`
 
-▶ ${colors.yellow('Install Reactizy Dependencies')}
+▶ ${colors.yellow("Install Reactizy Dependencies")}
 
 `)
                     runSpawn("npm", [
@@ -184,7 +193,7 @@ module.exports = function createApp(runSpawn, data) {
                         .then(() => {
                             console.log(`
 
- ▶ ${colors.yellow('Install Reactizy Architecture')}
+ ▶ ${colors.yellow("Install Reactizy Architecture")}
 
                                 `)
                             createAppFiles(name, options)

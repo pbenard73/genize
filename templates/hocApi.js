@@ -7,7 +7,7 @@ import env from './../env'
 let apis = []
 
 if (env.env === 'dev') {
-    apis = [domainize('http://localhost:5000/api', api)]
+    apis = [domainize(\`$\{env.api}/api\`, api)]
 } else {
     apis = [domainize('/api', api)]
 }

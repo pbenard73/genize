@@ -1,4 +1,4 @@
-module.exports = (es6 = false) => {
+module.exports = (es6 = false, port) => {
 
 let head = `var app = require('../app');
 var debug = require('debug')('exp-ske:server');
@@ -23,7 +23,7 @@ ${head}
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '5000');
+var port = normalizePort(process.env.PORT || '${port}');
 app.set('port', port);
 
 /**
