@@ -51,10 +51,10 @@ function getCommand() {
 
         program
             .name('genize')
-            .version('0.0.8')
+            .version('0.0.10')
             .usage(`
 Examples :
-     ${colors.yellow('genize create my-app')}  : Create a Reactizy Boileplate
+     ${colors.yellow('genize create my-app')}  : Create a Reactizy Boilerplate
      ${colors.yellow('genize component ComponentName')}  : Create new Component
      ${colors.yellow('genize page PageName')}  : Create new Page
      ${colors.yellow('genize window WindowName')}  : Create new Window

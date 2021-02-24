@@ -18,6 +18,10 @@ const envsTemplate = require("./templates/envs")
 const routeTemplate = require("./templates/route")
 const serverTemplate = require("./templates/server")
 const wwwTemplate = require("./templates/www")
+const babelTemplate = require("./templates/babel")
+const webpackTemplate = require("./templates/webpackSsr")
+const ssrTemplate = require("./templates/ssr")
+const indexSsrTemplate = require("./templates/index")
 
 function mkdir(folderPath) {
     fs.mkdirSync(folderPath)
@@ -31,6 +35,7 @@ function getExtraQuestions(options) {
         if (options.server === true) {
             return inquirer
                 .prompt([
+                    { name: "ssr", type: "confirm", default: false, message: "Use SSR ?" },
                     { name: "port", type: "text", default: 5000, message: "Server Port" },
                     { name: "js", type: "list", choices: ["common", "es6"], message: "Javascript Version" },
                 ])
@@ -93,7 +98,7 @@ function createAppFiles(folder, options = {}) {
                 write(root + "/apis/api.js", apiMain())
 
                 write(`${base}/bin/www${es6 === true ? ".js" : ""}`, wwwTemplate(es6 === true, port))
-                write(base + "/app.js", serverTemplate(es6 === true))
+                write(base + "/app.js", serverTemplate(es6 === true, options.ssr === true))
                 write(base + "/routes/main.js", routeTemplate(es6 === true))
                 write(base + "/scripts/setEnv.js", envTemplate(es6 === true))
                 write(`${base}/env.dev${es6 === true ? ".js" : ""}`, envsTemplate(es6 === true, true, port))
@@ -108,6 +113,15 @@ function createAppFiles(folder, options = {}) {
 
                 if (options.js === "es6") {
                     packageFile["type"] = "module"
+                }
+
+                if (options.ssr === true) {
+                    write(`${root}/index.js`, indexSsrTemplate)
+                    write(`${base}/ssr.dev.js`, ssrTemplate)
+                    write(`${base}/.babelrc.json`, babelTemplate)
+                    write(`${base}/webpack.ssr.js`, webpackTemplate)
+                    packageFile.scripts["build"] =
+                        "./node_modules/webpack/bin/webpack.js --config webpack.ssr.js; node ./scripts/setEnv.js prod; react-scripts build"
                 }
 
                 write(base + "/package.json", JSON.stringify(packageFile, null, 2))
@@ -174,6 +188,18 @@ module.exports = function createApp(runSpawn, data) {
 
 `)
             const options = { ...data.args, ...result }
+
+            if (options.ssr === true) {
+                modules = [
+                    ...modules,
+                    "webpack-node-externals",
+                    "webpack-cli",
+                    "svg-url-loader",
+                    "mini-css-extract-plugin",
+                    "@babel/plugin-proposal-class-properties",
+                ]
+            }
+
             runSpawn("npx", ["--registry", "https://registry.npmjs.org", "create-react-app@latest", "--use-npm", name]).then(
                 () => {
                     console.log(`

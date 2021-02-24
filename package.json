@@ -1,6 +1,6 @@
 {
   "name": "genize",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "React File Generator for Reactizy Architecture",
   "main": "index.js",
   "scripts": {
