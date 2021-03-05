@@ -78,6 +78,7 @@ function createAppFiles(folder, options = {}) {
                 if (options.withRouter !== true) {
                     write(root + "/App.js", appTemplate)
                 } else {
+                    write(`${root}/index.js`, indexSsrTemplate)
                     write(root + "/App.js", appRouter)
                     write(root + "/pages/Home.js", pageHome)
                     write(root + "/pages/Other.js", pageOther)
