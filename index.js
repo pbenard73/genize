@@ -51,7 +51,7 @@ function getCommand() {
 
         program
             .name('genize')
-            .version('0.0.11')
+            .version('0.0.13')
             .usage(`
 Examples :
      ${colors.yellow('genize create my-app')}  : Create a Reactizy Boilerplate
