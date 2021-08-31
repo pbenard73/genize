@@ -54,6 +54,7 @@ function createAppFiles(folder, options = {}) {
         try {
             mkdir(root + "/apis")
             mkdir(root + "/hocs")
+            mkdir(root + "/hooks")
             mkdir(root + "/reduxers")
             mkdir(root + "/components")
             mkdir(root + "/containers")
@@ -88,14 +89,14 @@ function createAppFiles(folder, options = {}) {
             if (options.server !== true) {
                 writeApp(component)
 
-                write(root + "/hocs/hoc.js", hoc)
+                write(root + "/hooks/useReactizy.js", hoc)
             } else {
                 const es6 = options.js === "es6"
                 const port = options.port
 
                 writeApp(apiComponent())
 
-                write(root + "/hocs/hoc.js", hocApi())
+                write(root + "/hooks/useReactizy.js", hocApi())
                 write(root + "/apis/api.js", apiMain())
 
                 write(`${base}/bin/www${es6 === true ? ".js" : ""}`, wwwTemplate(es6 === true, port))

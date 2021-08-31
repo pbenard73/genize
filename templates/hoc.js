@@ -6,15 +6,11 @@ const createTemplate = data => {
             : `import ${data.reduxers} from './../reduxers/${data.reduxers}'
 `
 
-    const template = `import { hocBuilder } from 'reactizy'
+    const template = `import hookBuilder from 'reactizy/core/hookBuilder'
 ${reduxer}
-const ${name} = hocBuilder({
+const ${name} = hookBuilder({
 	apis: [],
 	reduxers:[${data.reduxers || ""}],
-	hocs: {},
-	thunks: {},
-	fusion: [],
-	customs: {},
 	options: {
 		bindAll: false,
 		name: 'call'

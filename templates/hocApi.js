@@ -1,5 +1,6 @@
 const createTemplate = () => {
-    const template = `import { hocBuilder, domainize } from 'reactizy'
+    const template = `import { domainize } from 'reactizy'
+import hookBuilder from 'reactizy/core/hookBuilder'
 import main from './../reduxers/main'
 import api from './../apis/api'
 import env from './../env'
@@ -12,20 +13,16 @@ if (env.env === 'dev') {
     apis = [domainize('/api', api)]
 }
 
-const hoc = hocBuilder({
+const useReactizy = hookBuilder({
 	apis,
 	reduxers:[main],
-	hocs: {},
-	thunks: {},
-	fusion: [],
-	customs: {},
 	options: {
 		bindAll: false,
 		name: 'call'
 	}
 })
 
-export default hoc`
+export default useReactizy`
 
     return template
 }
